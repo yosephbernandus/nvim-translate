@@ -4,6 +4,10 @@ Hover translation for Neovim. Press a key on any non-English text and get an ins
 
 Designed for developers working with foreign-language codebases. Japanese comments, Chinese docs, Korean strings, or anything else. The source text stays untouched; you just see the translation on demand.
 
+## Example
+
+![nvim-translate demo](assets/demo.png)
+
 ## Features
 
 - **Hover translate** translates the word or block under cursor in normal mode
