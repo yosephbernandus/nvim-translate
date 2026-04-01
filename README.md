@@ -48,7 +48,7 @@ sudo dnf install translate-shell
 {
   'yosephbernandus/nvim-translate',
   dependencies = { 'MunifTanjim/nui.nvim' },
-  event = 'VeryLazy',
+
   keys = {
     { 'K', function() require('nvim_translate').translate_word() end,   mode = 'n', desc = 'Translate word under cursor' },
     { 'K', function() require('nvim_translate').translate_visual() end, mode = 'v', desc = 'Translate selection' },
@@ -63,7 +63,7 @@ sudo dnf install translate-shell
 {
   'yosephbernandus/nvim-translate',
   dependencies = { 'MunifTanjim/nui.nvim' },
-  event = 'VeryLazy',
+
   keys = {
     -- use whatever keymaps you prefer
     { '<leader>k', function() require('nvim_translate').translate_word() end,   mode = 'n', desc = 'Translate word' },
