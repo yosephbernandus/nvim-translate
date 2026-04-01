@@ -47,6 +47,7 @@ sudo dnf install translate-shell
 ```lua
 {
   'yosephbernandus/nvim-translate',
+  event = 'VeryLazy',
   dependencies = { 'MunifTanjim/nui.nvim' },
 
   keys = {
@@ -62,6 +63,7 @@ sudo dnf install translate-shell
 ```lua
 {
   'yosephbernandus/nvim-translate',
+  event = 'VeryLazy',
   dependencies = { 'MunifTanjim/nui.nvim' },
 
   keys = {
