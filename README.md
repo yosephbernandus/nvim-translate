@@ -186,6 +186,3 @@ You bring your own backend (your machine, your tools).
 No shared API keys. No centralized endpoints. Fully self-contained.
 ```
 
-## License
-
-MIT
