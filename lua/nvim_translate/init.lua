@@ -20,23 +20,32 @@ function M.setup(opts)
   _active_backend = cfg.backend or "google"
 
   local km = cfg.keymap or {}
+  local has_separate_visual = km.visual and km.visual ~= "" and km.visual ~= km.normal
 
   local augroup = vim.api.nvim_create_augroup("nvim_translate_keys", { clear = true })
 
   if km.normal and km.normal ~= "" then
     local function set_keys()
+      local buf = vim.api.nvim_get_current_buf()
+      if vim.b[buf].nvim_translate_keys then return end
+
       vim.keymap.set("n", km.normal, M.translate_word, {
-        buffer  = true,
+        buffer  = buf,
         silent  = true,
         noremap = true,
         desc    = "Translate word/block under cursor",
       })
-      vim.keymap.set("v", km.normal, M.translate_visual, {
-        buffer  = true,
-        silent  = true,
-        noremap = true,
-        desc    = "Translate visual selection",
-      })
+      -- Only bind visual to km.normal when there is no separate visual key
+      if not has_separate_visual then
+        vim.keymap.set("v", km.normal, M.translate_visual, {
+          buffer  = buf,
+          silent  = true,
+          noremap = true,
+          desc    = "Translate visual selection",
+        })
+      end
+
+      vim.b[buf].nvim_translate_keys = true
     end
     vim.api.nvim_create_autocmd("BufEnter", {
       group    = augroup,
@@ -45,7 +54,7 @@ function M.setup(opts)
     vim.schedule(set_keys)
   end
 
-  if km.visual and km.visual ~= "" and km.visual ~= km.normal then
+  if has_separate_visual then
     vim.keymap.set("v", km.visual, M.translate_visual, {
       silent  = true,
       noremap = true,
@@ -90,10 +99,10 @@ local function do_translate(text)
 
   backend.translate(text, lang_hint, target_lang, bcfg, function(err, translation)
     if err then
-      ui.show(text, "Error: " .. err, _active_backend)
+      ui.update(text, "Error: " .. err, _active_backend)
     else
       _cache:set(text, translation)
-      ui.show(text, translation, _active_backend)
+      ui.update(text, translation, _active_backend)
     end
   end)
 end

@@ -45,9 +45,22 @@ local function utf8_chars(str)
   return chars
 end
 
--- Returns true if codepoint is a non-ASCII, non-space character.
+-- CJK punctuation excluded from "foreign" word boundary detection.
+local CJK_PUNCT = {
+  [0x3000] = true,                     -- ideographic space
+  [0x3001] = true, [0x3002] = true,    -- 、。
+  [0x300C] = true, [0x300D] = true,    -- 「」
+  [0x300E] = true, [0x300F] = true,    -- 『』
+  [0x3010] = true, [0x3011] = true,    -- 【】
+  [0xFF01] = true, [0xFF1F] = true,    -- ！？
+  [0xFF08] = true, [0xFF09] = true,    -- （）
+  [0xFF0C] = true, [0xFF0E] = true,    -- ，．
+  [0xFF1A] = true, [0xFF1B] = true,    -- ：；
+}
+
+-- Returns true if codepoint is a non-ASCII, non-punctuation character.
 local function is_foreign(cp)
-  return cp > 0x7F and cp ~= 0x3000  -- 0x3000 = ideographic space
+  return cp > 0x7F and not CJK_PUNCT[cp]
 end
 
 -- Binary search: find the char index whose byte pos is <= target byte.

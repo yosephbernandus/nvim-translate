@@ -1,7 +1,8 @@
 local M = {}
 
-local _popup   = nil
-local _augroup = nil
+local _popup       = nil
+local _augroup     = nil
+local _source_text = nil
 
 -- Word-wrap with tracked width — O(words) FFI calls instead of O(words²).
 local function wrap_line(line, max_w)
@@ -123,7 +124,8 @@ function M.show(source_text, translation, backend_name)
   vim.api.nvim_buf_set_lines(popup.bufnr, 0, -1, false, lines)
   vim.api.nvim_set_option_value("modifiable", false, { buf = popup.bufnr })
 
-  _popup = popup
+  _popup       = popup
+  _source_text = source_text
 
   _augroup = vim.api.nvim_create_augroup("nvim_translate_close", { clear = true })
   vim.api.nvim_create_autocmd(
@@ -145,6 +147,40 @@ end
 
 function M.is_open()
   return _popup ~= nil
+end
+
+-- Update an existing popup in-place (same position). If the popup was
+-- already closed (user moved away), silently discard the result.
+function M.update(source_text, translation, backend_name)
+  if not _popup or _source_text ~= source_text then return end
+
+  local cfg   = require("nvim_translate.config").get()
+  local max_w = math.min(cfg.popup.max_width or 80, math.floor(vim.o.columns * 0.80))
+  max_w = math.max(max_w, cfg.popup.min_width or 30)
+
+  local raw_lines = vim.split(translation, "\n", { plain = true })
+  local lines = {}
+  for _, raw in ipairs(raw_lines) do
+    for _, wl in ipairs(wrap_line(raw, max_w - 2)) do
+      lines[#lines + 1] = wl
+    end
+  end
+
+  local width = math.max(cfg.popup.min_width or 30)
+  for _, line in ipairs(lines) do
+    width = math.max(width, vim.fn.strdisplaywidth(line) + 2)
+  end
+  width = math.min(width, max_w)
+
+  vim.api.nvim_set_option_value("modifiable", true, { buf = _popup.bufnr })
+  vim.api.nvim_buf_set_lines(_popup.bufnr, 0, -1, false, lines)
+  vim.api.nvim_set_option_value("modifiable", false, { buf = _popup.bufnr })
+
+  local win = _popup.winid
+  if win and vim.api.nvim_win_is_valid(win) then
+    vim.api.nvim_win_set_width(win, width)
+    vim.api.nvim_win_set_height(win, #lines)
+  end
 end
 
 return M
