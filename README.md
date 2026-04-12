@@ -168,6 +168,24 @@ require('nvim_translate').setup({
 })
 ```
 
+## Running tests
+
+### Prerequisites
+
+- [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) must be installed (used as the test framework)
+
+### Run all tests
+
+```bash
+NVIM_APPNAME=nvim-translate-test nvim --headless -u tests/minimal_init.lua -c "PlenaryBustedDirectory tests/ {minimal_init = 'tests/minimal_init.lua'}"
+```
+
+### Run a single test file
+
+```bash
+NVIM_APPNAME=nvim-translate-test nvim --headless -u tests/minimal_init.lua -c "PlenaryBustedFile tests/cache_spec.lua"
+```
+
 ## How it works
 
 1. Press your configured key. The plugin grabs the contiguous non-ASCII text block around the cursor.
